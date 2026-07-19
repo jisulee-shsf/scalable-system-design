@@ -3,6 +3,7 @@ package board.article.controller;
 import board.article.service.ArticleService;
 import board.article.service.request.ArticleCreateRequest;
 import board.article.service.request.ArticleUpdateRequest;
+import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,25 @@ public class ArticleController {
         return articleService.read(articleId);
     }
 
+    @GetMapping("/v1/articles")
+    public ArticlePageResponse readAll(
+            @RequestParam Long boardId,
+            @RequestParam Long page,
+            @RequestParam Long pageSize
+    ) {
+        return articleService.readAll(boardId, page, pageSize);
+    }
+
     @PostMapping("/v1/articles")
     public ArticleResponse create(@RequestBody ArticleCreateRequest request) {
         return articleService.create(request);
     }
 
     @PutMapping("/v1/articles/{articleId}")
-    public ArticleResponse update(@PathVariable Long articleId, @RequestBody ArticleUpdateRequest request) {
+    public ArticleResponse update(
+            @PathVariable Long articleId,
+            @RequestBody ArticleUpdateRequest request
+    ) {
         return articleService.update(articleId, request);
     }
 

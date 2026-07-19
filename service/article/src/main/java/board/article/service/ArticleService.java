@@ -4,6 +4,7 @@ import board.article.entity.Article;
 import board.article.repository.ArticleRepository;
 import board.article.service.request.ArticleCreateRequest;
 import board.article.service.request.ArticleUpdateRequest;
+import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import board.common.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
+
+    private static final long MOVABLE_PAGE_SIZE = 10L;
 
     private final Snowflake snowflake = new Snowflake();
     private final ArticleRepository articleRepository;
@@ -40,5 +43,17 @@ public class ArticleService {
     public void delete(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow();
         articleRepository.delete(article);
+    }
+
+    public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
+        return ArticlePageResponse.of(
+                articleRepository.findAll(boardId, pageSize, (page - 1) * pageSize).stream()
+                        .map(ArticleResponse::from)
+                        .toList(),
+                articleRepository.count(
+                        boardId,
+                        PageLimitCalculator.calculatePageLimit(page, pageSize, MOVABLE_PAGE_SIZE)
+                )
+        );
     }
 }
