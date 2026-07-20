@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 @SpringBootTest
 public class DataInitializer {
 
-    static final int BULK_INSERT_COUNT = 2000;
+    static final int BULK_INSERT_SIZE = 2000;
     static final int EXECUTE_COUNT = 6000;
 
     @PersistenceContext
@@ -44,7 +44,7 @@ public class DataInitializer {
 
     void insert() {
         transactionTemplate.executeWithoutResult(status -> {
-            for (int i = 0; i < BULK_INSERT_COUNT; i++) {
+            for (int i = 0; i < BULK_INSERT_SIZE; i++) {
                 Article article = Article.create(
                         snowflake.nextId(),
                         "title" + i,
