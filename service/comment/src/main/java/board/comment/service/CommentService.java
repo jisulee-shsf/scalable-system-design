@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static java.util.function.Predicate.not;
 
 @Service
@@ -91,5 +93,14 @@ public class CommentService {
                         PageLimitCalculator.calculatePageLimit(page, pageSize, MOVABLE_PAGE_LIMIT)
                 )
         );
+    }
+
+    public List<CommentResponse> readAllInfiniteScroll(Long articleId, Long lastParentCommentId, Long lastCommentId, Long pageSize) {
+        List<Comment> comments = lastParentCommentId == null || lastCommentId == null ?
+                commentRepository.findAllInfiniteScroll(articleId, pageSize) :
+                commentRepository.findAllInfiniteScroll(articleId, lastParentCommentId, lastCommentId, pageSize);
+        return comments.stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 }
