@@ -1,5 +1,6 @@
 package board.comment.api;
 
+import board.comment.service.response.CommentPageResponse;
 import board.comment.service.response.CommentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,36 @@ public class CommentApiTest {
 
         System.out.println("response = " + response);
     }
+
+    @Test
+    void readAllTest() {
+        CommentPageResponse pageResponse = restClient.get()
+                .uri("/v1/comments?articleId=1&page=1&pageSize=10")
+                .retrieve()
+                .body(CommentPageResponse.class);
+
+        System.out.println("pageResponse.getCommentCount() = " + pageResponse.getCommentCount());
+        for (CommentResponse response : pageResponse.getCommentResponses()) {
+            if (!response.getCommentId().equals(response.getParentCommentId())) {
+                System.out.print("\t");
+            }
+            System.out.println("response.getCommentId() = " + response.getCommentId());
+        }
+    }
+
+    /**
+     * pageResponse.getCommentCount() = 101
+     * response.getCommentId() = 337753034013220864
+     * response.getCommentId() = 337753034147438600
+     * response.getCommentId() = 337753034013220865
+     * response.getCommentId() = 337753034147438599
+     * response.getCommentId() = 337753034013220866
+     * response.getCommentId() = 337753034147438601
+     * response.getCommentId() = 337753034013220867
+     * response.getCommentId() = 337753034147438592
+     * response.getCommentId() = 337753034017415168
+     * response.getCommentId() = 337753034147438597
+     */
 
     @Test
     void deleteTest() {

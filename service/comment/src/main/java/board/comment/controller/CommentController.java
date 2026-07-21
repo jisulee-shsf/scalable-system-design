@@ -2,6 +2,7 @@ package board.comment.controller;
 
 import board.comment.service.CommentService;
 import board.comment.service.request.CommentCreateRequest;
+import board.comment.service.response.CommentPageResponse;
 import board.comment.service.response.CommentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,15 @@ public class CommentController {
     @GetMapping("/v1/comments/{commentId}")
     public CommentResponse read(@PathVariable("commentId") Long commentId) {
         return commentService.read(commentId);
+    }
+
+    @GetMapping("/v1/comments")
+    public CommentPageResponse readAll(
+            @RequestParam("articleId") Long articleId,
+            @RequestParam("page") Long page,
+            @RequestParam("pageSize") Long pageSize
+    ) {
+        return commentService.readAll(articleId, page, pageSize);
     }
 
     @PostMapping("/v1/comments")
