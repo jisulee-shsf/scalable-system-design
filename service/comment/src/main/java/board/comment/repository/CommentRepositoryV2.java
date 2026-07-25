@@ -62,4 +62,31 @@ public interface CommentRepositoryV2 extends JpaRepository<CommentV2, Long> {
             @Param("articleId") Long articleId,
             @Param("limit") Long limit
     );
+
+    @Query(
+            value = "select * " +
+                    "from comment_v2 " +
+                    "where article_id = :articleId " +
+                    "order by path asc " +
+                    "limit :limit",
+            nativeQuery = true
+    )
+    List<CommentV2> findAllInfiniteScroll(
+            @Param("articleId") Long articleId,
+            @Param("limit") Long limit
+    );
+
+    @Query(
+            value = "select * " +
+                    "from comment_v2 " +
+                    "where article_id = :articleId and path > :lastPath " +
+                    "order by path asc " +
+                    "limit :limit",
+            nativeQuery = true
+    )
+    List<CommentV2> findAllInfiniteScroll(
+            @Param("articleId") Long articleId,
+            @Param("lastPath") String lastPath,
+            @Param("limit") Long limit
+    );
 }

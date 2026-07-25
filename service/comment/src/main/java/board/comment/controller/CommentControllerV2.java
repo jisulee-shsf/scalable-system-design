@@ -7,6 +7,8 @@ import board.comment.service.response.CommentResponseV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class CommentControllerV2 {
@@ -24,6 +26,14 @@ public class CommentControllerV2 {
             @RequestParam("page") Long page,
             @RequestParam("pageSize") Long pageSize) {
         return commentService.readAll(articleId, page, pageSize);
+    }
+
+    @GetMapping("/v2/comments/infinite-scroll")
+    public List<CommentResponseV2> readAllInfiniteScroll(
+            @RequestParam("articleId") Long articleId,
+            @RequestParam(value = "lastPath", required = false) String lastPath,
+            @RequestParam("pageSize") Long pageSize) {
+        return commentService.readAllInfiniteScroll(articleId, lastPath, pageSize);
     }
 
     @PostMapping("/v2/comments")

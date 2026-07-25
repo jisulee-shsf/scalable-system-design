@@ -5,7 +5,10 @@ import board.comment.service.response.CommentResponseV2;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
+
+import java.util.List;
 
 public class CommentApiV2Test {
 
@@ -77,6 +80,47 @@ public class CommentApiV2Test {
          * response.getCommentId() = 339320271302754316
          * response.getCommentId() = 339320271302754325
          * response.getCommentId() = 339320271302754332
+         * response.getCommentId() = 339320271315337235
+         * response.getCommentId() = 339320271319531525
+         * response.getCommentId() = 339320271319531531
+         * response.getCommentId() = 339320271319531537
+         * response.getCommentId() = 339320271319531543
+         */
+    }
+
+    @Test
+    void readAllInfiniteScrollTest() {
+        List<CommentResponseV2> responses1 = restClient.get()
+                .uri("/v2/comments/infinite-scroll?articleId=1&pageSize=5")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CommentResponseV2>>() {
+                });
+
+        System.out.println("firstPage");
+        for (CommentResponseV2 response : responses1) {
+            System.out.println("response.getCommentId() = " + response.getCommentId());
+        }
+
+        String lastPath = responses1.getLast().getPath();
+        List<CommentResponseV2> responses2 = restClient.get()
+                .uri("/v2/comments/infinite-scroll?articleId=1&lastPath={lastPath}&pageSize=5", lastPath)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CommentResponseV2>>() {
+                });
+
+        System.out.println("secondPage");
+        for (CommentResponseV2 response : responses2) {
+            System.out.println("response.getCommentId() = " + response.getCommentId());
+        }
+
+        /**
+         * firstPage
+         * response.getCommentId() = 339320271143370752
+         * response.getCommentId() = 339320271290171394
+         * response.getCommentId() = 339320271302754316
+         * response.getCommentId() = 339320271302754325
+         * response.getCommentId() = 339320271302754332
+         * secondPage
          * response.getCommentId() = 339320271315337235
          * response.getCommentId() = 339320271319531525
          * response.getCommentId() = 339320271319531531
