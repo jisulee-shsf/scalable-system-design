@@ -4,6 +4,7 @@ import board.comment.entity.CommentPath;
 import board.comment.entity.CommentV2;
 import board.comment.repository.CommentRepositoryV2;
 import board.comment.service.request.CommentCreateRequestV2;
+import board.comment.service.response.CommentPageResponseV2;
 import board.comment.service.response.CommentResponseV2;
 import board.common.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import static java.util.function.Predicate.not;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceV2 {
+
+    private static final long MOVABLE_PAGE_LIMIT = 10L;
 
     private final Snowflake snowflake = new Snowflake();
     private final CommentRepositoryV2 commentRepository;
@@ -79,5 +82,14 @@ public class CommentServiceV2 {
                     .filter(not(this::hasChildren))
                     .ifPresent(this::delete);
         }
+    }
+
+    public CommentPageResponseV2 readAll(Long articleId, Long page, Long pageSize) {
+        return CommentPageResponseV2.of(
+                commentRepository.findAll(articleId, pageSize, (page - 1) * pageSize).stream()
+                        .map(CommentResponseV2::from)
+                        .toList(),
+                commentRepository.count(articleId, PageLimitCalculator.calculatePageLimit(page, pageSize, MOVABLE_PAGE_LIMIT))
+        );
     }
 }

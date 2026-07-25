@@ -1,5 +1,6 @@
 package board.comment.api;
 
+import board.comment.service.response.CommentPageResponseV2;
 import board.comment.service.response.CommentResponseV2;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,6 +57,32 @@ public class CommentApiV2Test {
         restClient.delete()
                 .uri("/v2/comments/{commentId}", 339195322932953088L)
                 .retrieve();
+    }
+
+    @Test
+    void readAllTest() {
+        CommentPageResponseV2 pageResponse = restClient.get()
+                .uri("/v2/comments?articleId=1&page=1&pageSize=10")
+                .retrieve()
+                .body(CommentPageResponseV2.class);
+
+        System.out.println("response.getCommentCount() = " + pageResponse.getCommentCount());
+        for (CommentResponseV2 response : pageResponse.getCommentResponses()) {
+            System.out.println("response.getCommentId() = " + response.getCommentId());
+        }
+
+        /**
+         * response.getCommentId() = 339320271143370752
+         * response.getCommentId() = 339320271290171394
+         * response.getCommentId() = 339320271302754316
+         * response.getCommentId() = 339320271302754325
+         * response.getCommentId() = 339320271302754332
+         * response.getCommentId() = 339320271315337235
+         * response.getCommentId() = 339320271319531525
+         * response.getCommentId() = 339320271319531531
+         * response.getCommentId() = 339320271319531537
+         * response.getCommentId() = 339320271319531543
+         */
     }
 
     @Getter
