@@ -4,6 +4,10 @@ import board.like.service.response.ArticleLikeResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class LikeApiTest {
 
     RestClient restClient = RestClient.create("http://localhost:9002");
@@ -45,5 +49,51 @@ public class LikeApiTest {
                 .uri("/v1/article-likes/articles/{articleId}/users/{userId}", articleId, userId)
                 .retrieve()
                 .body(ArticleLikeResponse.class);
+    }
+
+    @Test
+    void likePerformanceTest() throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        try {
+            likePerformanceTest(executorService, 1L, "pessimistic-lock-1");
+            likePerformanceTest(executorService, 2L, "pessimistic-lock-2");
+            likePerformanceTest(executorService, 3L, "optimistic-lock");
+        } finally {
+            executorService.shutdown();
+        }
+    }
+
+    void likePerformanceTest(ExecutorService executorService, Long articleId, String lockType) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(3000);
+
+        System.out.println("lockType = " + lockType + " start");
+        likeWithLockType(articleId, 1L, lockType);
+
+        long start = System.currentTimeMillis();
+
+        for (int i = 0; i < 3000; i++) {
+            long userid = i + 2;
+            executorService.submit(() -> {
+                likeWithLockType(articleId, userid, lockType);
+                countDownLatch.countDown();
+            });
+        }
+        countDownLatch.await();
+
+        long end = System.currentTimeMillis();
+        System.out.println("lockType = " + lockType + " / time = " + (end - start) + "ms");
+
+        Long count = restClient.get()
+                .uri("/v1/article-likes/articles/{articleId}", articleId)
+                .retrieve()
+                .body(Long.class);
+
+        System.out.println("count = " + count);
+    }
+
+    void likeWithLockType(Long articleId, Long userId, String lockType) {
+        restClient.post()
+                .uri("/v1/article-likes/articles/{articleId}/users/{userId}/" + lockType, articleId, userId)
+                .retrieve();
     }
 }
