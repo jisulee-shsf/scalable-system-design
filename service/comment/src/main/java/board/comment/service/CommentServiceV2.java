@@ -1,7 +1,9 @@
 package board.comment.service;
 
+import board.comment.entity.ArticleCommentCount;
 import board.comment.entity.CommentPath;
 import board.comment.entity.CommentV2;
+import board.comment.repository.ArticleCommentRepository;
 import board.comment.repository.CommentRepositoryV2;
 import board.comment.service.request.CommentCreateRequestV2;
 import board.comment.service.response.CommentPageResponseV2;
@@ -23,6 +25,7 @@ public class CommentServiceV2 {
 
     private final Snowflake snowflake = new Snowflake();
     private final CommentRepositoryV2 commentRepository;
+    private final ArticleCommentRepository articleCommentRepository;
 
     @Transactional
     public CommentResponseV2 create(CommentCreateRequestV2 request) {
@@ -39,6 +42,14 @@ public class CommentServiceV2 {
                                         .orElse(null))
                 )
         );
+
+        int result = articleCommentRepository.increase(request.getArticleId());
+        if (result == 0) {
+            articleCommentRepository.save(
+                    ArticleCommentCount.init(request.getArticleId(), 1L)
+            );
+        }
+
         return CommentResponseV2.from(comment);
     }
 
@@ -78,6 +89,7 @@ public class CommentServiceV2 {
 
     private void delete(CommentV2 comment) {
         commentRepository.delete(comment);
+        articleCommentRepository.decrease(comment.getArticleId());
         if (!comment.isRoot()) {
             commentRepository.findByArticleIdAndPath(comment.getArticleId(), comment.getCommentPath().getParentPath())
                     .filter(CommentV2::getDeleted)
@@ -102,5 +114,11 @@ public class CommentServiceV2 {
         return comments.stream()
                 .map(CommentResponseV2::from)
                 .toList();
+    }
+
+    public Long count(Long articleId) {
+        return articleCommentRepository.findById(articleId)
+                .map(ArticleCommentCount::getCommentCount)
+                .orElse(0L);
     }
 }
