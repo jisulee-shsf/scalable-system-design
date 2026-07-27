@@ -18,7 +18,7 @@ public class ArticleViewController {
             @PathVariable("articleId") Long articleId,
             @PathVariable("userId") Long userId
     ) {
-        return articleViewService.increase(articleId);
+        return articleViewService.increase(articleId, userId);
     }
 
     @GetMapping("/v1/article-views/articles/{articleId}/count")
