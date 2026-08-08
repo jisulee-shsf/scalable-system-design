@@ -1,5 +1,9 @@
 package board.like.service;
 
+import board.common.event.EventType;
+import board.common.event.payload.ArticleLikedEventPayload;
+import board.common.event.payload.ArticleUnlikedEventPayload;
+import board.common.outboxmessagerelay.OutBoxEventPublisher;
 import board.common.snowflake.Snowflake;
 import board.like.entity.ArticleLike;
 import board.like.entity.ArticleLikeCount;
@@ -17,6 +21,7 @@ public class ArticleLikeService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleLikeRepository articleLikeRepository;
     private final ArticleLikeCountRepository articleLikeCountRepository;
+    private final OutBoxEventPublisher outBoxEventPublisher;
 
     public ArticleLikeResponse read(Long articleId, Long userId) {
         return articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
@@ -26,7 +31,7 @@ public class ArticleLikeService {
 
     @Transactional
     public void likePessimisticLock1(Long articleId, Long userId) {
-        articleLikeRepository.save(
+        ArticleLike articleLike = articleLikeRepository.save(
                 ArticleLike.create(
                         snowflake.nextId(),
                         articleId,
@@ -40,16 +45,38 @@ public class ArticleLikeService {
                     ArticleLikeCount.init(articleId, 1L)
             );
         }
+
+        outBoxEventPublisher.publish(
+                EventType.ARTICLE_LIKED,
+                ArticleLikedEventPayload.builder()
+                        .articleLikeId(articleLike.getArticleLikeId())
+                        .articleId(articleLike.getArticleId())
+                        .userId(articleLike.getUserId())
+                        .createdAt(articleLike.getCreatedAt())
+                        .articleLikeCount(count(articleLike.getArticleId()))
+                        .build(),
+                articleLike.getArticleId()
+        );
     }
 
     @Transactional
     public void unlikePessimisticLock1(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
-                            articleLikeRepository.delete(articleLike);
-                            articleLikeCountRepository.decrease(articleId);
-                        }
-                );
+                    articleLikeRepository.delete(articleLike);
+                    articleLikeCountRepository.decrease(articleId);
+                    outBoxEventPublisher.publish(
+                            EventType.ARTICLE_UNLIKED,
+                            ArticleUnlikedEventPayload.builder()
+                                    .articleLikeId(articleLike.getArticleLikeId())
+                                    .articleId(articleLike.getArticleId())
+                                    .userId(articleLike.getUserId())
+                                    .createdAt(articleLike.getCreatedAt())
+                                    .articleLikeCount(count(articleLike.getArticleId()))
+                                    .build(),
+                            articleLike.getArticleId()
+                    );
+                });
     }
 
     @Transactional

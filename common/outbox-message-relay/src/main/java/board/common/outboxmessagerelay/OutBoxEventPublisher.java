@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class MessageRelayEventPublisher {
+public class OutBoxEventPublisher {
 
     private final Snowflake outboxIdSnowflake = new Snowflake();
     private final Snowflake eventIdSnowflake = new Snowflake();

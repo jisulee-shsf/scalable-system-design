@@ -38,7 +38,7 @@ public class MessageRelayConfig {
     @Bean
     public Executor messageRelayPublishEventExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(120);
+        executor.setCorePoolSize(20);
         executor.setMaxPoolSize(50);
         executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("mr-pub-event-");
