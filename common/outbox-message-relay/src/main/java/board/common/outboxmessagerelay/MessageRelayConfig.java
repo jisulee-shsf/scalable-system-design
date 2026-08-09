@@ -29,8 +29,8 @@ public class MessageRelayConfig {
     public KafkaTemplate<String, String> messageRelayKafkaTemplate() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, new StringSerializer());
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, new StringSerializer());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.ACKS_CONFIG, "all");
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(configProps));
     }
