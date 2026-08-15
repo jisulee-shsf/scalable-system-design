@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 @Component
 public class CommentClient {
-    @Value("${endpoints.board-comment-service-url}")
+    @Value("${endpoints.board-comment-service.url}")
     private String commentServiceClient;
 
     private RestClient restClient;
@@ -22,7 +22,7 @@ public class CommentClient {
     public long count(Long articleId) {
         try {
             return restClient.get()
-                    .uri("/v2/comment/articles/{articleId}/count", articleId)
+                    .uri("/v2/comments/articles/{articleId}/count", articleId)
                     .retrieve()
                     .body(Long.class);
         } catch (Exception e) {

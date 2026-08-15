@@ -46,7 +46,7 @@ public class CommentControllerV2 {
         commentService.delete(commentId);
     }
 
-    @GetMapping("/v1/comments/articles/{articleId}/count")
+    @GetMapping("/v2/comments/articles/{articleId}/count")
     public Long count(@PathVariable Long articleId) {
         return commentService.count(articleId);
     }

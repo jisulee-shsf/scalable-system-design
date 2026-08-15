@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 @Component
 public class LikeClient {
-    @Value("${endpoints.board-like-service-url}")
+    @Value("${endpoints.board-like-service.url}")
     private String likeServiceClient;
 
     private RestClient restClient;

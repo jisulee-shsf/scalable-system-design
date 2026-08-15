@@ -3,13 +3,14 @@ package board.articleread.client;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Component
 public class ViewClient {
-    @Value("${endpoints.board-view-service-url}")
+    @Value("${endpoints.board-view-service.url}")
     private String viewServiceClient;
 
     private RestClient restClient;
@@ -19,10 +20,12 @@ public class ViewClient {
         restClient = RestClient.create(viewServiceClient);
     }
 
+    @Cacheable(key = "#articleId", value = "articleViewCount")
     public long count(Long articleId) {
+        log.info("[ViewClient.count] articleId={}", articleId);
         try {
             return restClient.get()
-                    .uri("/v1/view/articles/{articleId}/count", articleId)
+                    .uri("/v1/article-views/articles/{articleId}/count", articleId)
                     .retrieve()
                     .body(Long.class);
         } catch (Exception e) {

@@ -13,7 +13,7 @@ import java.util.Optional;
 @Slf4j
 @Component
 public class ArticleClient {
-    @Value("${endpoints.board-article-service-url}")
+    @Value("${endpoints.board-article-service.url}")
     private String articleServiceUrl;
 
     private RestClient restClient;
