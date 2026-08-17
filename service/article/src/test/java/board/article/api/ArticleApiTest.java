@@ -51,7 +51,7 @@ public class ArticleApiTest {
                 .body(ArticlePageResponse.class);
 
         System.out.println("response.getArticleCount() = " + response.getArticleCount());
-        for (ArticleResponse articleResponse : response.getArticleResponses()) {
+        for (ArticleResponse articleResponse : response.getArticles()) {
             System.out.println("articleResponse.getArticleId() = " + articleResponse.getArticleId());
         }
     }

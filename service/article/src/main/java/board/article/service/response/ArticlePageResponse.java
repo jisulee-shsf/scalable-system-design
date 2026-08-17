@@ -9,12 +9,12 @@ import java.util.List;
 @ToString
 public class ArticlePageResponse {
 
-    private List<ArticleResponse> articleResponses;
+    private List<ArticleResponse> articles;
     private Long articleCount;
 
-    public static ArticlePageResponse of(List<ArticleResponse> articleResponses, Long articleCount) {
+    public static ArticlePageResponse of(List<ArticleResponse> articles, Long articleCount) {
         ArticlePageResponse articlePageResponse = new ArticlePageResponse();
-        articlePageResponse.articleResponses = articleResponses;
+        articlePageResponse.articles = articles;
         articlePageResponse.articleCount = articleCount;
         return articlePageResponse;
     }
